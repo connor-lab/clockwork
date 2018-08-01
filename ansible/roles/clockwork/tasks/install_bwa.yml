@@ -1,0 +1,43 @@
+---
+
+- name: "Remove bwa binary"
+  file:
+    state: absent
+    path: "{{ install_root }}/bwa"
+  become: yes
+  when: bwa_always_replace
+
+- name: "Make sure /tmp/bwa doesn't exist"
+  file:
+    state: absent
+    path: /tmp/bwa
+
+- name: "Clone BWA repo"
+  git:
+    repo: "{{ bwa_repo }}"
+    dest: /tmp/bwa
+    force: yes
+
+- name: "Make bwa"
+  command: make
+  args:
+    chdir: /tmp/bwa
+    creates: "{{ install_root }}/bwa"
+  become: yes
+  register: make_bwa
+
+- name: "Copy BWA into path directory"
+  copy:
+    src: /tmp/bwa/bwa
+    dest: "{{ install_root }}/bwa"
+    mode: 0755
+    remote_src: yes
+  become: yes
+  when: make_bwa is changed
+
+- name: "Link BWA binary to PATH"
+  file:
+    state: link
+    src: "{{ install_root }}/bwa"
+    dest: /usr/local/bin/bwa
+  become: yes

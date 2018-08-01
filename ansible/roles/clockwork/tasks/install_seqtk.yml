@@ -1,0 +1,44 @@
+---
+
+- name: "Remove seqtk binary"
+  file:
+    state: absent
+    path: "{{ install_root }}/seqtk"
+  become: yes
+  when: seqtk_always_replace
+
+- name: "Make sure /tmp/seqtk doesn't exist"
+  file:
+    state: absent
+    path: /tmp/seqtk
+
+- name: "Clone seqtk repo"
+  git:
+    repo: "{{ seqtk_repo }}"
+    dest: /tmp/seqtk
+    force: yes
+
+- name: "Make seqtk"
+  command: make
+  args:
+    chdir: /tmp/seqtk
+    creates: "{{ install_root }}/seqtk"
+  become: yes
+  register: make_seqtk
+
+- name: "Copy seqtk into path directory"
+  copy:
+    src: /tmp/seqtk/seqtk
+    dest: "{{ install_root }}/seqtk"
+    mode: 0755
+    remote_src: yes
+  become: yes
+  when: make_seqtk is changed
+
+- name: "Link Seqtk binary to PATH"
+  file:
+    state: link
+    src: "{{ install_root }}/seqtk"
+    dest: /usr/local/bin/seqtk
+  become: yes
+

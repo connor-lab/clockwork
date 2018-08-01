@@ -1,0 +1,31 @@
+---
+
+- name: "Remove samtools directory"
+  file:
+    state: absent
+    path: "{{ install_root }}/samtools-{{ samtools_version }}"
+  become: yes
+  when: samtools_always_replace
+
+- name: "Download Samtools"
+  unarchive:
+    src: "{{ samtools_archive_url }}"
+    dest: "{{ install_root }}"
+    remote_src: yes
+  become: yes
+
+- name: "Make Samtools"
+  command: make
+  args:
+    chdir: "{{ install_root }}/samtools-{{ samtools_version }}"
+    creates: "{{ install_root }}/samtools-{{ samtools_version }}/samtools"
+  become: yes
+  register: make_samtools
+
+- name: Link samtools binaries into PATH
+  file:
+    state: link
+    src: "{{ install_root }}/samtools-{{ samtools_version }}/samtools"
+    dest: /usr/local/bin/samtools
+  become: yes
+

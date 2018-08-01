@@ -1,0 +1,34 @@
+---
+
+- name: "Make picard install dir"
+  file:
+    state: directory
+    path: "{{ install_root }}"
+  become: yes
+
+- name: "Get Picard jar"
+  get_url:
+    url: "{{ picard_archive_url }}"
+    dest: "{{ install_root }}/picard.jar"
+  become: yes
+
+- name: "Find path to picard jar"
+  find:
+    paths: "{{ install_root }}"
+    recurse: yes
+    patterns: "picard.jar"
+  register: picard_jar_path
+
+- name: "Make picard helper script"
+  template:
+    src: picard_helper.j2
+    dest: "{{ install_root }}/picard"
+    mode: 0775
+  become: yes
+
+- name: "Link picard helper script to PATH"
+  file:
+    state: link
+    src: "{{ install_root }}/picard"
+    dest: /usr/local/bin/picard
+  become: yes

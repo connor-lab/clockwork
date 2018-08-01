@@ -1,0 +1,45 @@
+---
+
+- name: "Install EPEL"
+  yum:
+    name: epel-release
+    state: present
+  become: yes
+
+- name: "Install CentOS packages with yum"
+  yum:
+    name: "{{ item }}"
+    state: present
+  become: yes
+  with_items:
+    - bzip2
+    - bzip2-devel
+    - cmake
+    - gawk
+    - gcc-c++
+    - git
+    - gnuplot
+    - graphviz
+    - java-1.8.0-openjdk-headless
+    - libarchive-devel
+    - libcurl-devel
+    - libxml2-devel
+    - ncurses-devel
+    - make
+    - openssl-devel
+    - python2-pip
+    - unzip
+    - wget
+    - xz-devel
+    - zlib-devel
+    - graphviz 
+    - pkgconfig 
+    - python-devel 
+    - python2-pip 
+    - python34-devel
+    - python34-pip 
+    - python34-setuptools
+    - R
+    - rsync
+    - unzip 
+    - wget

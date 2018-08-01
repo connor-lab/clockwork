@@ -1,0 +1,30 @@
+---
+
+- include_tasks: install_ubuntu_packages.yml
+  when: ansible_distribution == 'Ubuntu'
+
+- include_tasks: install_centos_packages.yml
+  when: ansible_distribution == 'CentOS'
+
+- name: "Make install root directory"
+  file:
+    state: directory
+    path: "{{ install_root }}"
+    mode: 0775
+  become: yes
+
+#- name: "Add install_root to PATH"
+#  lineinfile:
+#    path: /etc/environment
+#    state: present
+#    line: "{{ item }}"
+#  become: yes
+#  with_items:
+#    - "export PATH={{ install_root }}:$PATH"
+
+- include_tasks: install_bwa.yml
+- include_tasks: install_bcftools.yml
+- include_tasks: install_picard.yml
+- include_tasks: install_samtools.yml
+- include_tasks: install_seqtk.yml
+- include_tasks: install_trimmomatic.yml

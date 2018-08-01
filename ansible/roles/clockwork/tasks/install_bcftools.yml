@@ -1,0 +1,31 @@
+---
+
+- name: "Remove bcftools directory"
+  file:
+    state: absent
+    path: "{{ install_root }}/bcftools-{{ bcftools_version }}"
+  become: yes
+  when: bcftools_always_replace
+
+- name: "Download BCFtools"
+  unarchive:
+    src: "{{ bcftools_archive_url }}"
+    dest: "{{ install_root }}"
+    remote_src: yes
+  become: yes
+
+- name: "Make BCFtools"
+  command: make
+  args:
+    chdir: "{{ install_root }}/bcftools-{{ bcftools_version }}"
+    creates: "{{ install_root }}/bcftools-{{ bcftools_version }}/bcftools"
+  become: yes
+  register: make_bcftools
+
+- name: Link bcftools binaries into PATH
+  file:
+    state: link
+    src: "{{ install_root }}/bcftools-{{ bcftools_version }}/bcftools"
+    dest: /usr/local/bin/bcftools
+  become: yes
+

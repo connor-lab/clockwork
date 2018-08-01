@@ -1,0 +1,37 @@
+---
+
+- name: "Download trimmomatic archive"
+  unarchive:
+    src: "{{ trimmomatic_archive_url }}"
+    dest: "{{ install_root }}"
+    remote_src: yes
+  become: yes
+
+- name: "Find path to trimmomatic jar"
+  find:
+    paths: "{{ install_root }}"
+    recurse: yes
+    patterns: "trimmomatic-*.jar"
+  register: trimmomatic_jar_path
+
+- name: "Create trimmomatic helper script"
+  template:
+    src: trimmomatic_helper.j2
+    dest: "{{ install_root }}/trimmomatic"
+    mode: 0755
+  become: yes
+
+- name: "Link trimmomatic helper script to PATH"
+  file:
+    state: link
+    src: "{{ install_root }}/trimmomatic"
+    dest: /usr/local/bin/trimmomatic
+  become: yes
+
+- name: "Link trimmomatic.jar to {{ install_root }}"
+  file:
+    state: link
+    src: "{{ trimmomatic_jar_path.files[0].path }}"
+    dest: "{{ install_root }}/trimmomatic.jar"
+  become: yes
+
